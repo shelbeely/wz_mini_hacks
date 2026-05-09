@@ -86,9 +86,10 @@ function refreshResult() {
       }
       document.getElementById("description").textContent = content;
       var model = data.model || "unknown";
+      var mode = data.mode || "image";
       var ts = data.timestamp || "unknown";
       document.getElementById("meta").textContent =
-        "Last analysis: " + ts + "  |  Model: " + model;
+        "Last analysis: " + ts + "  |  Model: " + model + "  |  Mode: " + mode;
     } catch (e) {
       document.getElementById("description").textContent = "Waiting for first result…";
     }
