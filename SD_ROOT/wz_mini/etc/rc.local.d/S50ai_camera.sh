@@ -70,7 +70,7 @@ wait_for_icamera
 
 # json_escape: escape a string for safe embedding as a JSON string value.
 json_escape() {
-    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' ' | tr '\r' ' ' | tr '\t' ' '
+    printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n\r\t' ' '
 }
 
 # extract_content: pull the first assistant "content" value from an OpenRouter
@@ -123,14 +123,15 @@ run_tool() {
     esac
     case "$name" in
         alert)
-            local safe_arg
+            local safe_arg ts
             safe_arg=$(json_escape "$arg")
-            printf '{"timestamp":"%s","message":"%s"}\n' "$(date)" "$safe_arg" > "$AI_ALERT"
+            ts=$(json_escape "$(date)")
+            printf '{"timestamp":"%s","message":"%s"}\n' "$ts" "$safe_arg" > "$AI_ALERT"
             if [[ "$HA_ENABLED" == "true" ]] && [[ -n "$HA_URL" ]] && [[ -n "$HA_TOKEN" ]]; then
                 local ha_payload
                 ha_payload=$(printf \
                     '{"state":"ALERT","attributes":{"message":"%s","timestamp":"%s","friendly_name":"AI Camera"}}' \
-                    "$safe_arg" "$(date)")
+                    "$safe_arg" "$ts")
                 /opt/wz_mini/bin/curl -s \
                     --cacert /opt/wz_mini/etc/ssl/ca-bundle.crt \
                     -H "Authorization: Bearer $HA_TOKEN" \
@@ -178,8 +179,14 @@ run_tool() {
             ;;
         record)
             local dur="${arg:-10}"
+            # Validate dur is a safe positive integer (1–300 s).
+            case "$dur" in
+                ''|*[!0-9]*) dur=10 ;;
+            esac
+            [ "$dur" -lt 1 ]   && dur=1
+            [ "$dur" -gt 300 ] && dur=300
             mkdir -p "$AI_RECORD_DIR"
-            local clip="$AI_RECORD_DIR/clip_$(date +%Y%m%d_%H%M%S).mp4"
+            local clip="$AI_RECORD_DIR/clip_$(date +%Y%m%d_%H%M%S)_$$.mp4"
             /opt/wz_mini/bin/ffmpeg -loglevel error \
                 -f v4l2 -i /dev/video1 \
                 -t "$dur" \
@@ -237,8 +244,17 @@ conv_entries="${conv_entries}{\"role\":\"assistant\",\"content\":\"$safe_asst\"}
 tool_line=$(printf '%s' "$asst_text" | sed 's/\\n/\n/g' | grep -m1 '^TOOL_CALL:')
 [ -z "$tool_line" ] && break
 
-tool_name=$(printf '%s' "$tool_line" | cut -d: -f2)
-tool_arg=$(printf '%s' "$tool_line" | cut -d: -f3-)
+# Validate the format is TOOL_CALL:<name>:<arg> (at least two colons).
+case "$tool_line" in
+    TOOL_CALL:*:*)
+        tool_name=$(printf '%s' "$tool_line" | cut -d: -f2)
+        tool_arg=$(printf '%s' "$tool_line" | cut -d: -f3-)
+        ;;
+    *)
+        echo "$(date) [agent]: malformed tool call line, stopping" >> "$AI_LOG.log"
+        break
+        ;;
+esac
 
 tool_result=$(run_tool "$tool_name" "$tool_arg")
 

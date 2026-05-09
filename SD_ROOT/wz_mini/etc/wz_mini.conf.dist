@@ -63,6 +63,8 @@ DEBUG_PASSWORD="false"
 #             follow-up frames before producing a final result.  Requires a
 #             vision model.  Tool calls are signalled by the AI with a single
 #             line in its reply: TOOL_CALL:<name>:<argument>
+#             Only the first tool call per turn is executed; subsequent calls
+#             in the same reply are ignored.
 #
 # OPENROUTER_VIDEO_SECONDS: clip length when OPENROUTER_MODE="video" (default 5)
 #
