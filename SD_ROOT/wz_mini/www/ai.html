@@ -53,7 +53,7 @@ a:hover { text-decoration: underline; }
 <script>
 var POLL_MS = 5000;
 
-function bustUrl(url) {
+function addCacheBuster(url) {
   return url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now();
 }
 
@@ -61,12 +61,12 @@ function refreshSnapshot() {
   var img = document.getElementById("snapshot");
   var src = img.getAttribute("data-src") || "/ai/snapshot.jpg";
   img.setAttribute("data-src", src);
-  img.src = bustUrl(src);
+  img.src = addCacheBuster(src);
 }
 
 function refreshResult() {
   var xhr = new XMLHttpRequest();
-  xhr.open("GET", bustUrl("/cgi-bin/ai.cgi"), true);
+  xhr.open("GET", addCacheBuster("/cgi-bin/ai.cgi"), true);
   xhr.timeout = 4000;
   xhr.onreadystatechange = function () {
     if (xhr.readyState !== 4) return;

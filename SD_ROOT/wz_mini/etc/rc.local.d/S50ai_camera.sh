@@ -85,14 +85,16 @@ case "$1" in
 			# Optionally push to Home Assistant via REST API
 			if [[ "$HA_ENABLED" == "true" ]] && [[ -n "$HA_URL" ]] && [[ -n "$HA_TOKEN" ]]; then
 
-				# Extract the content text; truncate to 255 chars (HA state limit)
+				# Extract the content text; truncate to 255 chars (HA state limit).
+				# NOTE: This regex extraction is best-effort; content containing
+				# escaped quotes may be truncated. Install jq for robust parsing.
 				ai_text=$(echo "$response" \
 					| grep -o '"content":"[^"]*"' | head -1 \
 					| sed 's/^"content":"//; s/"$//' \
 					| cut -c1-255)
 
-				# Escape any double-quotes inside the text for JSON safety
-				ai_text_safe=$(echo "$ai_text" | sed 's/"/\\"/g')
+				# Escape backslashes, then double-quotes for JSON safety
+				ai_text_safe=$(echo "$ai_text" | sed 's/\\/\\\\/g; s/"/\\"/g')
 
 				ha_payload=$(printf \
 					'{"state":"%s","attributes":{"timestamp":"%s","model":"%s","friendly_name":"AI Camera"}}' \
