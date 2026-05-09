@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Camera View</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: #111; color: #eee; padding: 16px; }
+h1 { font-size: 1.3rem; margin-bottom: 14px; color: #fff; }
+#snapshot {
+  max-width: 100%;
+  width: 100%;
+  border: 2px solid #333;
+  border-radius: 6px;
+  display: block;
+  background: #222;
+}
+#description {
+  margin-top: 14px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  min-height: 60px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+#meta { margin-top: 8px; font-size: 0.78rem; color: #777; }
+#status { margin-top: 6px; font-size: 0.78rem; color: #5af; }
+.label { font-weight: bold; color: #aaa; }
+a { color: #5af; text-decoration: none; }
+a:hover { text-decoration: underline; }
+#bar {
+  margin-top: 20px;
+  padding-top: 8px;
+  border-top: 1px solid #333;
+  font-size: 0.75rem;
+  color: #555;
+}
+</style>
+</head>
+<body>
+<h1>AI Camera</h1>
+<img id="snapshot" src="/ai/snapshot.jpg" alt="Camera snapshot" />
+<div id="description">Waiting for first result…</div>
+<div id="meta"></div>
+<div id="status"></div>
+<div id="bar"><a href="/">← Back to menu</a></div>
+
+<script>
+var POLL_MS = 5000;
+
+function bustUrl(url) {
+  return url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now();
+}
+
+function refreshSnapshot() {
+  var img = document.getElementById("snapshot");
+  var src = img.getAttribute("data-src") || "/ai/snapshot.jpg";
+  img.setAttribute("data-src", src);
+  img.src = bustUrl(src);
+}
+
+function refreshResult() {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", bustUrl("/cgi-bin/ai.cgi"), true);
+  xhr.timeout = 4000;
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4) return;
+    if (xhr.status !== 200) {
+      document.getElementById("status").textContent = "Could not reach /cgi-bin/ai.cgi";
+      return;
+    }
+    try {
+      var data = JSON.parse(xhr.responseText);
+      var content = "";
+      if (data.response && data.response.choices && data.response.choices.length > 0) {
+        content = data.response.choices[0].message.content;
+      } else if (data.response && data.response.error) {
+        content = "API error: " + data.response.error.message;
+      } else {
+        content = "No result yet — analysis may still be running.";
+      }
+      document.getElementById("description").textContent = content;
+      var model = data.model || "unknown";
+      var ts = data.timestamp || "unknown";
+      document.getElementById("meta").textContent =
+        "Last analysis: " + ts + "  |  Model: " + model;
+    } catch (e) {
+      document.getElementById("description").textContent = "Waiting for first result…";
+    }
+  };
+  xhr.send();
+}
+
+function tick() {
+  refreshSnapshot();
+  refreshResult();
+  document.getElementById("status").textContent =
+    "Auto-refreshing every " + (POLL_MS / 1000) + " s";
+}
+
+tick();
+setInterval(tick, POLL_MS);
+</script>
+</body>
+</html>
