@@ -137,10 +137,7 @@ if [[ "$HA_ENABLED" == "true" ]] && [[ -n "$HA_URL" ]] && [[ -n "$HA_TOKEN" ]]; 
 # Extract the content text; truncate to 255 chars (HA state limit).
 # NOTE: This regex extraction is best-effort; content containing
 # escaped quotes may be truncated. Install jq for robust parsing.
-ai_text=$(echo "$response" \
-| grep -o '"content":"[^"]*"' | head -1 \
-| sed 's/^"content":"//; s/"$//' \
-| cut -c1-255)
+ai_text=$(echo "$response" | grep -o '"content":"[^"]*"' | head -1 | sed 's/^"content":"//; s/"$//' | cut -c1-255)
 
 # Escape backslashes, then double-quotes for JSON safety
 ai_text_safe=$(echo "$ai_text" | sed 's/\\/\\\\/g; s/"/\\"/g')
