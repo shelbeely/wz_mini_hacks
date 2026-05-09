@@ -8,6 +8,29 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: sans-serif; background: #111; color: #eee; padding: 16px; }
 h1 { font-size: 1.3rem; margin-bottom: 14px; color: #fff; }
+#alert-banner {
+  display: none;
+  background: #7a1212;
+  border: 1px solid #c0392b;
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #ffd;
+  position: relative;
+}
+#alert-dismiss {
+  position: absolute;
+  right: 10px;
+  top: 8px;
+  cursor: pointer;
+  color: #faa;
+  font-size: 1rem;
+  background: none;
+  border: none;
+  padding: 0;
+}
 #snapshot {
   max-width: 100%;
   width: 100%;
@@ -28,6 +51,28 @@ h1 { font-size: 1.3rem; margin-bottom: 14px; color: #fff; }
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+.turn {
+  border-radius: 5px;
+  padding: 9px 12px;
+  margin-bottom: 8px;
+}
+.turn:last-child { margin-bottom: 0; }
+.turn-assistant { background: #1a2233; border: 1px solid #2a3a5a; }
+.turn-tool      { background: #1c1c1c; border: 1px solid #2f2f2f; }
+.turn-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: bold;
+  color: #7aa;
+  margin-bottom: 4px;
+}
+.turn-tool .turn-label { color: #888; }
+.turn-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
 #meta { margin-top: 8px; font-size: 0.78rem; color: #777; }
 #status { margin-top: 6px; font-size: 0.78rem; color: #5af; }
 .label { font-weight: bold; color: #aaa; }
@@ -44,6 +89,7 @@ a:hover { text-decoration: underline; }
 </head>
 <body>
 <h1>AI Camera</h1>
+<div id="alert-banner"><button id="alert-dismiss" title="Dismiss">✕</button><span id="alert-text"></span></div>
 <img id="snapshot" src="/ai/snapshot.jpg" alt="Camera snapshot" />
 <div id="description">Waiting for first result…</div>
 <div id="meta"></div>
@@ -52,16 +98,50 @@ a:hover { text-decoration: underline; }
 
 <script>
 var POLL_MS = 5000;
+var ALERT_POLL_MS = 15000;
+var alertDismissed = false;
 
 function addCacheBuster(url) {
   return url + (url.indexOf("?") >= 0 ? "&" : "?") + "t=" + Date.now();
 }
+
+function escapeHtml(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+document.getElementById("alert-dismiss").onclick = function () {
+  alertDismissed = true;
+  document.getElementById("alert-banner").style.display = "none";
+};
 
 function refreshSnapshot() {
   var img = document.getElementById("snapshot");
   var src = img.getAttribute("data-src") || "/ai/snapshot.jpg";
   img.setAttribute("data-src", src);
   img.src = addCacheBuster(src);
+}
+
+function refreshAlert() {
+  if (alertDismissed) return;
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", "/cgi-bin/ai.cgi?alert=1&t=" + Date.now(), true);
+  xhr.timeout = 4000;
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState !== 4 || xhr.status !== 200) return;
+    try {
+      var data = JSON.parse(xhr.responseText);
+      var banner = document.getElementById("alert-banner");
+      if (data && data.message) {
+        document.getElementById("alert-text").textContent = "⚠ Alert: " + data.message;
+        banner.style.display = "block";
+      }
+    } catch (e) { /* ignore */ }
+  };
+  xhr.send();
 }
 
 function refreshResult() {
@@ -76,20 +156,39 @@ function refreshResult() {
     }
     try {
       var data = JSON.parse(xhr.responseText);
-      var content = "";
-      if (data.response && data.response.choices && data.response.choices.length > 0) {
-        content = data.response.choices[0].message.content;
-      } else if (data.response && data.response.error) {
-        content = "API error: " + data.response.error.message;
-      } else {
-        content = "No result yet — analysis may still be running.";
-      }
-      document.getElementById("description").textContent = content;
       var model = data.model || "unknown";
       var mode = data.mode || "image";
       var ts = data.timestamp || "unknown";
       document.getElementById("meta").textContent =
         "Last analysis: " + ts + "  |  Model: " + model + "  |  Mode: " + mode;
+
+      var desc = document.getElementById("description");
+      if (mode === "agent" && data.conversation && data.conversation.length > 0) {
+        var html = "";
+        for (var i = 0; i < data.conversation.length; i++) {
+          var turn = data.conversation[i];
+          var role = turn.role || "unknown";
+          var content = turn.content || "";
+          var isTool = role === "tool_result";
+          var cls = isTool ? "turn turn-tool" : "turn turn-assistant";
+          var label = isTool ? "🔧 Tool result" : "🤖 Assistant";
+          html += '<div class="' + cls + '">' +
+            '<span class="turn-label">' + label + '</span>' +
+            '<div class="turn-content">' + escapeHtml(content) + '</div>' +
+            '</div>';
+        }
+        desc.innerHTML = html;
+      } else {
+        var content = "";
+        if (data.response && data.response.choices && data.response.choices.length > 0) {
+          content = data.response.choices[0].message.content;
+        } else if (data.response && data.response.error) {
+          content = "API error: " + data.response.error.message;
+        } else {
+          content = "No result yet — analysis may still be running.";
+        }
+        desc.textContent = content;
+      }
     } catch (e) {
       document.getElementById("description").textContent = "Waiting for first result…";
     }
@@ -106,6 +205,8 @@ function tick() {
 
 tick();
 setInterval(tick, POLL_MS);
+refreshAlert();
+setInterval(refreshAlert, ALERT_POLL_MS);
 </script>
 </body>
 </html>

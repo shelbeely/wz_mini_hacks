@@ -59,8 +59,32 @@ DEBUG_PASSWORD="false"
 #   video  — record a short MP4 clip via ffmpeg and send as video_url
 #             (requires a video-capable model, e.g. google/gemini-2.0-flash;
 #              see https://openrouter.ai/docs/guides/overview/multimodal/videos)
+#   agent  — multi-turn conversation loop; the AI may call tools and request
+#             follow-up frames before producing a final result.  Requires a
+#             vision model.  Tool calls are signalled by the AI with a single
+#             line in its reply: TOOL_CALL:<name>:<argument>
 #
 # OPENROUTER_VIDEO_SECONDS: clip length when OPENROUTER_MODE="video" (default 5)
+#
+# OPENROUTER_MAX_TURNS: maximum back-and-forth rounds per agent cycle (default 4)
+#
+# OPENROUTER_SYSTEM_PROMPT: system persona sent to the AI in agent mode.
+#   Leave at the default to get sensible security-camera behaviour, or
+#   customise to change what the AI looks for and which tools it uses.
+#
+# OPENROUTER_AGENT_TOOLS: space-separated whitelist of tools the agent may call.
+#   Supported: alert  ha_trigger  notify  capture_again  record
+#   alert        — write /www/ai/alert.json (shown as a banner in ai.html) and
+#                  optionally push an ALERT state to Home Assistant
+#   ha_trigger   — POST a JSON message to HA_WEBHOOK_URL
+#   notify       — POST a JSON message to NOTIFY_WEBHOOK_URL (ntfy/Gotify/Pushover)
+#   capture_again — take a fresh JPEG and attach it to the next agent turn
+#   record       — start a background ffmpeg clip; argument is duration in seconds
+#
+# AI_RECORD_DIR: directory for clips started by the "record" tool (default /tmp/ai_recordings)
+#
+# HA_WEBHOOK_URL: Home Assistant webhook URL for the ha_trigger tool
+# NOTIFY_WEBHOOK_URL: Push-notification webhook URL for the notify tool
 #
 # API references:
 #   https://openrouter.ai/docs/guides/overview/multimodal/image-understanding
@@ -72,6 +96,12 @@ OPENROUTER_PROMPT="Describe what you see in this image."
 OPENROUTER_INTERVAL="30"
 OPENROUTER_MODE="image"
 OPENROUTER_VIDEO_SECONDS="5"
+OPENROUTER_MAX_TURNS="4"
+OPENROUTER_SYSTEM_PROMPT=""
+OPENROUTER_AGENT_TOOLS="alert ha_trigger notify capture_again"
+AI_RECORD_DIR="/tmp/ai_recordings"
+HA_WEBHOOK_URL=""
+NOTIFY_WEBHOOK_URL=""
 
 #### HOME ASSISTANT ####
 # Set HA_ENABLED="true" to push AI results to Home Assistant via REST API.
