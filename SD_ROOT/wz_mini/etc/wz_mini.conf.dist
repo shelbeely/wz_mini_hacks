@@ -1,145 +1,138 @@
-#wz_mini configuration
+#wz_mini configuration — AI camera build
 
 
-#### W E B CAMERA###
-##THIS MODE DISABLES EVERYTHING AND IT WILL
+#### W E B CAMERA ###
+## THIS MODE DISABLES EVERYTHING AND IT WILL
 ## WORK AS A WEB CAMERA FOR YOUR PC ***ONLY***
 WEB_CAM_ENABLE="false"
 WEB_CAM_BIT_RATE="8000"
 WEB_CAM_FPS_RATE="25"
 
-#####NETWORKING#####
+##### NETWORKING #####
 CUSTOM_HOSTNAME="WCV3"
-
-ENABLE_USB_ETH="false"
-ENABLE_USB_ETH_MODULE_AUTODETECT="true"
-ENABLE_USB_ETH_MODULE_MANUAL=""
-USB_ETH_MAC_ADDR=""
-
-ENABLE_USB_DIRECT="false"
-USB_DIRECT_MAC_ADDR="02:01:02:03:04:08"
-
-ENABLE_USB_RNDIS="false"
-
-ENABLE_IPV6="false"
-
-ENABLE_WIREGUARD="false"
-WIREGUARD_IPV4=""
-WIREGUARD_PEER_ENDPOINT=""
-WIREGUARD_PEER_PUBLIC_KEY=""
-WIREGUARD_PEER_ALLOWED_IPS=""
-WIREGUARD_PEER_KEEP_ALIVE=""
-
-ENABLE_IPTABLES="false"
-
-ENABLE_NFSv4="false"
 
 ENABLE_RTL8189FS_DRIVER="true"
 ENABLE_ATBM603X_DRIVER="true"
 
 NTP_SERVER=""
 
-##### NETWORK INTERFACE BONDING #####
-BONDING_ENABLED="false"
-BONDING_PRIMARY_INTERFACE="eth0"
-BONDING_SECONDARY_INTERFACE="wlan0"
-BONDING_LINK_MONITORING_FREQ_MS="100"
-BONDING_DOWN_DELAY_MS="5000"
-BONDING_UP_DELAY_MS="5000"
-BONDING_FAIL_OVER_MAC="0"
-
-#####ACCESSORIES#####
-REMOTE_SPOTLIGHT="false"
-
-####MOTOR OPTIONS####
-MOTOR_DISABLE="false"
-MOTOR_DEFAULT_X=""
-MOTOR_DEFAULT_Y=""
-
-#####VIDEO STREAM#####
-RTSP_LOGIN="admin"
-RTSP_PASSWORD=""
-RTSP_PORT="8554"
-
-RTSP_HI_RES_ENABLED="false"
-RTSP_HI_RES_ENABLE_AUDIO="false"
-
-RTSP_LOW_RES_ENABLED="false"
-RTSP_LOW_RES_ENABLE_AUDIO="false"
-
-# WARNING: Setting RTSP_AUTH_DISABLE="true" removes password protection from
-# the RTSP stream.  Anyone on the network will be able to view the stream
-# without credentials.  Only enable this in trusted, isolated networks.
-RTSP_AUTH_DISABLE="false"
-
-VIDEO_0_MAX_BITRATE=""
-VIDEO_0_TARGET_BITRATE=""
-VIDEO_0_ENC_PARAMETER=""
-VIDEO_0_FPS=""
-
-VIDEO_1_MAX_BITRATE=""
-VIDEO_1_TARGET_BITRATE=""
-VIDEO_1_ENC_PARAMETER=""
-VIDEO_1_FPS=""
-
-GO2RTC_SERVER_ENABLED="false"
-GO2RTC_HI_RES_ENABLED="false"
-GO2RTC_HI_RES_ENABLE_AUDIO="false"
-GO2RTC_LOW_RES_ENABLED="false"
-GO2RTC_LOW_RES_ENABLE_AUDIO="false"
-
-#####RTMP STREAMING#####
-#### REQUIRES RTSP ####
-### AND RTSP AUDIO ###
-RTMP_STREAM_ENABLED="false"
-RTMP_STREAM_FEED="video1_unicast"
-RTMP_STREAM_SERVICE="youtube"
-RTMP_STREAM_DISABLE_AUDIO="false"
-RTMP_STREAM_YOUTUBE_KEY=""
-RTMP_STREAM_TWITCH_KEY=""
-RTMP_STREAM_FACEBOOK_KEY=""
-
-#####GENERAL#####
+##### GENERAL #####
 LIBCALLBACK_ENABLE="true"
 ENABLE_SWAP="true"
-ENABLE_USB_STORAGE="false"
-ENABLE_EXT4="false"
-ENABLE_CIFS="false"
 DISABLE_FW_UPGRADE="true"
-AUDIO_PROMPT_VOLUME="50"
-ENABLE_MP4_WRITE="false"
-# Set to "true" to prevent the camera from dropping to night-vision mode
-NIGHT_DROP_DISABLE="false"
 ENABLE_FSCK_ON_BOOT="false"
-ENABLE_CAR_DRIVER="false"
-# Set to "true" to run dnsmasq as a local DNS/DHCP server on the camera
-ENABLE_LOCAL_DNS="false"
-# Set to "true" to enable cron job scheduling via crontab
-ENABLE_CRONTAB="false"
 # Set to "true" to operate without a Wyze cloud account (requires initial QR
 # code WiFi setup; patches iCamera to avoid cloud resets)
 ENABLE_SELFHOSTED_MODE="false"
 
-####WEB####
-WEB_SERVER_ENABLED="false"
+#### WEB SERVER ####
+# Set WEB_SERVER_ENABLED="true" to enable the built-in httpd web server.
+# WEB_SERVER_OPTIONS controls which links appear on the home page.
+# Supported options: ai cam config diag current
+WEB_SERVER_ENABLED="true"
 WEB_SERVER_AUTH="true"
 WEB_SERVER_LOGIN="admin"
 WEB_SERVER_PASSWORD=""
+WEB_SERVER_OPTIONS="ai diag"
 
-####FILE SERVER####
-ENABLE_FILESERVER="false"
-
-#####SCRIPTING#####
+##### SCRIPTING #####
 # Path to a custom shell script to run after the network is fully up.
 # Leave blank to disable.
 CUSTOM_SCRIPT_PATH=""
 
-#####DEBUG#####
+##### DEBUG #####
 # DEBUG_ENABLED: drops you to a shell via serial; skips loading app_init.sh
 DEBUG_ENABLED="false"
 # DEBUG_INITRAMFS_ENABLED: drops you to a shell in the initramfs stage
 DEBUG_INITRAMFS_ENABLED="false"
 # DEBUG_PASSWORD: set to "true" to enable a known debug password for root
 DEBUG_PASSWORD="false"
-# ENABLE_SYSLOG_SAVE: save kernel syslog messages to the SD card on each boot
-ENABLE_SYSLOG_SAVE="false"
+
+#### AI CAMERA (OpenRouter) ####
+# Set AI_CAMERA_ENABLED="true" to start the analysis loop on boot.
+# Results are written to /opt/wz_mini/www/ai/ and viewable at
+# http://CAMERA_IP/ai.html
+#
+# OPENROUTER_MODE:
+#   image  — capture a JPEG still and send as image_url (works with any
+#             vision model, e.g. google/gemini-flash-1.5-8b)
+#   video  — record a short MP4 clip via ffmpeg and send as video_url
+#             (requires a video-capable model, e.g. google/gemini-2.0-flash;
+#              see https://openrouter.ai/docs/guides/overview/multimodal/videos)
+#   agent  — multi-turn conversation loop; the AI may call tools and request
+#             follow-up frames before producing a final result.  Requires a
+#             vision model.  Tool calls are signalled by the AI with a single
+#             line in its reply: TOOL_CALL:<name>:<argument>
+#             Only the first tool call per turn is executed; subsequent calls
+#             in the same reply are ignored.
+#
+# OPENROUTER_VIDEO_SECONDS: clip length when OPENROUTER_MODE="video" (default 5)
+#
+# OPENROUTER_MAX_TURNS: maximum back-and-forth rounds per agent cycle (default 4)
+#
+# OPENROUTER_SYSTEM_PROMPT: system persona sent to the AI in agent mode.
+#   Leave at the default to get sensible security-camera behaviour, or
+#   customise to change what the AI looks for and which tools it uses.
+#
+# OPENROUTER_AGENT_TOOLS: space-separated whitelist of tools the agent may call.
+#   Supported: alert  ha_trigger  notify  capture_again  record
+#   alert        — write /www/ai/alert.json (shown as a banner in ai.html) and
+#                  optionally push an ALERT state to Home Assistant
+#   ha_trigger   — POST a JSON message to HA_WEBHOOK_URL
+#   notify       — POST a JSON message to NOTIFY_WEBHOOK_URL (ntfy/Gotify/Pushover)
+#   capture_again — take a fresh JPEG and attach it to the next agent turn
+#   record       — start a background ffmpeg clip; argument is duration in seconds
+#
+# AI_RECORD_DIR: directory for clips started by the "record" tool (default /tmp/ai_recordings)
+#
+# HA_WEBHOOK_URL: Home Assistant webhook URL for the ha_trigger tool
+# NOTIFY_WEBHOOK_URL: Push-notification webhook URL for the notify tool
+#
+# API references:
+#   https://openrouter.ai/docs/guides/overview/multimodal/image-understanding
+#   https://openrouter.ai/docs/guides/overview/multimodal/videos
+AI_CAMERA_ENABLED="false"
+OPENROUTER_API_KEY=""
+OPENROUTER_MODEL="google/gemini-flash-1.5-8b"
+OPENROUTER_PROMPT="Describe what you see in this image."
+OPENROUTER_INTERVAL="30"
+OPENROUTER_MODE="image"
+OPENROUTER_VIDEO_SECONDS="5"
+OPENROUTER_MAX_TURNS="4"
+OPENROUTER_SYSTEM_PROMPT=""
+OPENROUTER_AGENT_TOOLS="alert ha_trigger notify capture_again"
+AI_RECORD_DIR="/tmp/ai_recordings"
+HA_WEBHOOK_URL=""
+NOTIFY_WEBHOOK_URL=""
+
+#### HOME ASSISTANT ####
+# Set HA_ENABLED="true" to push AI results to Home Assistant via REST API.
+#
+# HA_URL:       Base URL of your HA instance, e.g. http://homeassistant.local:8123
+# HA_TOKEN:     Long-lived access token from your HA profile page
+# HA_ENTITY_ID: Entity to update, e.g. sensor.ai_camera
+#
+# In Home Assistant, add a REST camera pointing at the snapshot:
+#   camera:
+#     - platform: generic
+#       still_image_url: "http://CAMERA_IP/ai/snapshot.jpg"
+#       username: admin        # if WEB_SERVER_AUTH is true
+#       password: !secret wz_mini_password
+#
+# And a REST sensor for the AI description text:
+#   sensor:
+#     - platform: rest
+#       name: "AI Camera"
+#       resource: "http://CAMERA_IP/cgi-bin/ai.cgi"
+#       value_template: >
+#         {{ value_json.response.choices[0].message.content
+#            if value_json.response and value_json.response.choices
+#            else 'No result' }}
+#       json_attributes_path: "$"
+#       json_attributes:
+#         - timestamp
+#         - model
+HA_ENABLED="false"
+HA_URL=""
+HA_TOKEN=""
+HA_ENTITY_ID="sensor.ai_camera"

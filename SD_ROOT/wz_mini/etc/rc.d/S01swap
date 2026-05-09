@@ -16,10 +16,9 @@ case "$1" in
 
 		if [ -e /opt/wz_mini/swap.gz ]; then
 			if [ -f /opt/wz_mini/tmp/.T20 ]; then
-				LD_LIBRARY_PATH='/opt/wz_mini/lib' /opt/wz_mini/bin/audioplay_t20 /opt/wz_mini/usr/share/audio/swap_v2.wav $AUDIO_PROMPT_VOLUME
+				: # T20 audio module load handled by S09firstboot
 			else
 				insmod /opt/wz_mini/lib/modules/3.10.14__isvp_swan_1.0__/extra/audio.ko spk_gpio=$GPIO alc_mode=0 mic_gain=0
-				/opt/wz_mini/bin/audioplay_t31 /opt/wz_mini/usr/share/audio/swap.wav $AUDIO_PROMPT_VOLUME
 				rmmod audio
 			fi
 			echo "Swap archive present, extracting"
