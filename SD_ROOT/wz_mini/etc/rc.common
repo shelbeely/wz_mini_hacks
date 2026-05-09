@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source /opt/wz_mini/wz_mini.conf
+. /opt/wz_mini/wz_mini.conf
 
 #Set module dir depending on platform
 if [ -f /opt/wz_mini/tmp/.T20 ]; then
@@ -52,10 +52,29 @@ wait_for_wlan_ip() {
 	done
 }
 
+# rotate_log <log_base>
+# Rotates <log_base>.log to <log_base>.log.N (next available suffix) and
+# creates a new, empty <log_base>.log.  Call before opening a log for writing.
+rotate_log() {
+	local log="$1"
+	if [ -e "$log.log" ] || [ -L "$log.log" ]; then
+		i=0
+		while [ -e "$log.log.$i" ] || [ -L "$log.log.$i" ]; do
+			i=$((i+1))
+		done
+		mv "$log.log" "$log.log.$i"
+	fi
+	touch -- "$log.log"
+}
+
 wait_for_icamera() {
 	while ! pgrep -f "iCamera" > /dev/null; do
 		sleep 5
 	done
 
+	# iCamera needs a few seconds after its process appears before it is ready
+	# to handle video/audio commands.  Starting dependent services too early
+	# causes the Wyze app live view to break, so this deliberate delay is
+	# required.
 	sleep 10
 }

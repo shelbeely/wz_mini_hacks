@@ -11,13 +11,13 @@ bind replace the factory busybox, which is missing a bunch of utilities, with ou
 
 mount ```/configs``` to check if the model of the camera is HL_PAN2.  If it is, change some variables.
 
-mount ```/params``` if it exists, to check if the model of the camera is V2.  If it is, change some variable
+mount ```/params``` if it exists, to check if the model of the camera is V2.  If it is, change some variables.
 
 Check if `/opt/wz_mini/etc/.first_boot` exists, if it does, play some audio to notify the user that the first boot init is running.
 
 bind replace ```/etc/init.d/inittab``` with our own version that has rcS located at ```/opt/wz_mini/tmp/.storage/rcS```
 
-bind replace ```/etc/profile``` with out own version with added PATH variables for the shell
+bind replace ```/etc/profile``` with our own version with added PATH variables for the shell
 
 mount ```/tmp```
 
@@ -76,7 +76,143 @@ Normally, ```iCamera``` downloads the firmware upgrade tar to ```/tmp/img```, re
 
 ```inotifyd``` monitors ```/tmp/Upgrade``` for the file ```upgraderun.sh```, this is the script responsible for flashing the firmware files to their respective partitions.  Once the file appears, ```inotifyd``` calls the script ```/opt/wz_mini/usr/bin/watch_up.sh``` which will rename the file to ```upgraderun.old``` and kill the script if ```iCamera``` was fast enough to launch it before we renamed it.  
 
-```watch_up.sh``` will then proceed to flash the main partitions directly, instead of doing what the stock script does, which is to flash the images to backup partitions, and then let the bootloader flash the main partitions upon reboot, since this process is currently broken when using the loading the kernel from the micro sd card, which we do.
+```watch_up.sh``` will then proceed to flash the main partitions directly, instead of doing what the stock script does, which is to flash the images to backup partitions, and then let the bootloader flash the main partitions upon reboot, since this process is currently broken when loading the kernel from the micro SD card, which we do.
 
 
 Once the partitions have been flashed, we reboot the camera, and the FW upgrade is complete.
+
+---
+
+# Developer Build Environment
+
+## Option 1 — atomcam_tools (Docker-based)
+
+Clone and build the atomcam_tools Docker build environment:
+
+```
+git clone https://github.com/mnakada/atomcam_tools
+cd atomcam_tools
+make
+```
+
+This step takes a long time the first time as it compiles the full toolchain.
+
+Once complete, start the Docker container:
+
+```
+docker-compose up -d
+```
+
+To resume an existing container, find its ID and attach:
+
+```
+docker ps
+docker exec -it <container_id> /bin/bash
+```
+
+### Docker environment layout
+
+Inside the container, `/src` is mapped to the `atomcam_tools/` checkout on the host.
+
+All build commands below are run from:
+
+```
+/atomtools/build/buildroot-2016.02
+```
+
+The rootfs is built with glibc using the Docker-internal GCC toolchain.  The
+GCC prefix is:
+
+```
+/atomtools/build/buildroot-2016.02/output/host/usr/bin/mipsel-ingenic-linux-gnu-
+```
+
+The Wyze camera's stock `iCamera` app was compiled against uClibc.  To build
+`libcallback.so` (which hooks into `iCamera`), the uClibc toolchain is used:
+
+```
+/atomtools/build/mips-gcc472-glibc216-64bit/bin/mips-linux-uclibc-gnu-
+```
+
+### Common build tasks
+
+**Rebuild kernel (after changing kernel config or initramfs):**
+
+```
+make linux-rebuild
+cp output/images/uImage.lzma /src
+```
+
+**Rebuild rootfs (after changing rootfs files or busybox menuconfig):**
+
+```
+make
+cp output/images/rootfs.ext2 /src
+```
+
+Copy the output files to the SD card as `factory_t31_ZMC6tiIDQN` and
+`rootfs_hack.ext2` respectively.
+
+**Rebuild a specific package:**
+
+```
+make <package>-rebuild
+```
+
+**Change busybox command set:**
+
+```
+make busybox-menuconfig
+make
+```
+
+**Change kernel configuration:**
+
+```
+make linux-menuconfig
+make linux-rebuild
+```
+
+---
+
+## Option 2 — buildroot (standalone)
+
+Download buildroot 2022.05:
+
+```
+wget https://buildroot.org/downloads/buildroot-2022.05.tar.xz
+tar xf buildroot-2022.05.tar.xz
+cd buildroot-2022.05
+```
+
+Run `make menuconfig` and configure as follows:
+
+- **Target Options**
+  - Target Architecture: MIPS (little endian)
+  - Target Architecture Variant: Generic MIPS32R2
+  - FP Mode: 32
+
+- **Build Options**
+  - Strip Target Binaries: enabled
+  - Libraries: static only (or dynamic — if dynamic, copy all required shared
+    libraries to the device alongside the binary)
+
+- **Toolchain**
+  - C library: musl (or uClibc-ng)
+  - Kernel Headers: Manually Specified Linux Version → `3.10.98`
+  - Custom Kernel Headers Series: 3.10.x
+  - Binutils Version: 2.36.1
+  - GCC Compiler Version: gcc 9.x
+  - Enable C++ support: enabled
+  - Enable compiler link-time optimization support: enabled
+
+- **Target packages**
+  - Select whatever packages you need
+
+Exit and save, then build:
+
+```
+make
+```
+
+Compiled binaries will be in `output/target/usr/`.

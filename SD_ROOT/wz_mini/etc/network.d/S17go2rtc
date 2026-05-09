@@ -7,17 +7,10 @@
 ### END INIT INFO
 
 . /opt/wz_mini/wz_mini.conf
+. /opt/wz_mini/etc/rc.common
 
 GO2RTC=/opt/wz_mini/log/go2rtc
-if [[ -e $GO2RTC.log || -L $GO2RTC.log ]] ; then
-	i=0
-	while [[ -e $GO2RTC.log.$i || -L $GO2RTC.log.$i ]] ; do
-		let i++
-	done
-	mv $GO2RTC.log $GO2RTC.log.$i
-	GO2RTC=$GO2RTC
-fi
-touch -- "$GO2RTC".log
+rotate_log "$GO2RTC"
 
 
 case "$1" in
@@ -77,7 +70,7 @@ case "$1" in
 			sleep 5
 			export ALSA_CONFIG_PATH=/opt/wz_mini/etc/alsa/alsa.conf
 
-			attempts=0
+				attempts=0
 			while true; do
 				SSL_CERT_FILE=/opt/wz_mini/etc/ssl/ca-bundle.crt /opt/wz_mini/bin/go2rtc_linux_mipsel -config /opt/wz_mini/etc/go2rtc.yml > $GO2RTC.log 2>&1 &
 				pid=$!
@@ -87,7 +80,7 @@ case "$1" in
 					break
 				else
 					echo "Process exited unexpectedly, restarting."
-					let "attempts+=1"
+					attempts=$((attempts+1))
 					if [ $attempts -ge 20 ]; then
 						echo "Process exited unexpectedly too many times. Not restarting."
 						break

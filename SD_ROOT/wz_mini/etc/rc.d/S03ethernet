@@ -29,24 +29,24 @@ case "$1" in
 							'13b1:0018' | '1557:7720' | '07d1:3c05' | '2001:3c05' | '2001:1a02' |\
 							'1737:0039' | '04bb:0930' | '050d:5055' | '05ac:1402' | '0b95:772a' |\
 							'14ea:ab11' | '0db0:a877' | '0b95:7e2b' | '0b95:172a' | '066b:20f9')
-													echo "Loading ASIX Ethernet driver..."
-													modprobe asix
-													;;
-												'0b95:1790' | '0b95:178a' | '0df6:0072')
-													echo "Loading AX88179 Gigabit Ethernet driver..."
-													modprobe ax88179_178a
-													;;
-													'1004:61aa' | '046d:c11f' | '1410:b001' | '1410:9010' | '413c:8195' |\
-														'413c:8196' | '413c:819b' | '16d5:650a' | '12d1:14ac')
-																											echo "Loading USB CDC Ethernet driver..."
-																											modprobe cdc_ether
-																											;;
-																										'0bda:8152')
-																											echo "Loading Realtek RTL8152 driver..."
-																											modprobe r8152
-																											;;
-																									esac
-																								done
+							echo "Loading ASIX Ethernet driver..."
+							modprobe asix
+							;;
+						'0b95:1790' | '0b95:178a' | '0df6:0072')
+							echo "Loading AX88179 Gigabit Ethernet driver..."
+							modprobe ax88179_178a
+							;;
+						'1004:61aa' | '046d:c11f' | '1410:b001' | '1410:9010' | '413c:8195' |\
+							'413c:8196' | '413c:819b' | '16d5:650a' | '12d1:14ac')
+							echo "Loading USB CDC Ethernet driver..."
+							modprobe cdc_ether
+							;;
+						'0bda:8152')
+							echo "Loading Realtek RTL8152 driver..."
+							modprobe r8152
+							;;
+					esac
+				done
 			fi
 
 			echo "Manually load any other Ethernet Drivers if asked for"
@@ -59,9 +59,9 @@ case "$1" in
 
 			cat /sys/class/net/eth0/address | tr '[:lower:]' '[:upper:]' > /opt/wz_mini/tmp/eth0_mac
 
-                        if [ -n "$USB_ETH_MAC_ADDR" ]; then
-                                /opt/wz_mini/tmp/.bin/ifconfig eth0 hw ether $USB_ETH_MAC_ADDR
-                        fi
+			if [ -n "$USB_ETH_MAC_ADDR" ]; then
+				/opt/wz_mini/tmp/.bin/ifconfig eth0 hw ether $USB_ETH_MAC_ADDR
+			fi
 
 		else
 			echo "USB Ethernet disabled"

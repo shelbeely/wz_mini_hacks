@@ -26,7 +26,9 @@ case "$1" in
 		sed -i '/sbin:/s/$/:\/opt\/wz_mini\/bin/' /opt/wz_mini/tmp/.storage/rcS
 		sed -i '/system\/\lib/s/$/:\/opt\/wz_mini\/lib/' /opt/wz_mini/tmp/.storage/rcS
 
-		#Custom PATH hooks
+		#Custom PATH hooks (extension points for advanced users — uncomment and adapt
+		#these lines to inject additional library or binary paths into the boot
+		#environment before app_init.sh runs):
 		#sed -i '/^# Run init script.*/i#Hook Library PATH here\nexport LD_LIBRARY_PATH=/tmp/test/lib:$LD_LIBRARY_PATH\n' /opt/wz_mini/tmp/.storage/rcS
 		#sed -i '/^# Run init script.*/i#Hook system PATH here\nexport PATH=/tmp/test/bin:$PATH\n' /opt/wz_mini/tmp/.storage/rcS
 		echo "Copy factory app_init.sh"

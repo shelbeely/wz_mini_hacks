@@ -13,13 +13,13 @@ Using this project can potentially expose your device to the open internet depen
 
 * No hardware modifications needed to the device!
 * Easy uninstall, just remove files from micro-sd card, or don't use a micro-sd card at all!
-* Compatability is not guaranteed with really old firmware versions!
+* Compatibility is not guaranteed with really old firmware versions!
 * Update to the latest stable or beta firmware, this mod should still work! (most features, see the wiki) [Firmware-Support](https://github.com/gtxaspec/wz_mini_hacks/wiki/Firmware-Support)
 * Block remote or app initiated firmware updates
 * DNS Spoofing or Telnet mod are *not* required prior to installation
 * RTSP Streaming Support:
-  * go2rtc
-  * v4l2rtspserver (deprecated)
+  * go2rtc *(recommended)*
+  * v4l2rtspserver *(deprecated — retained for legacy setups; go2rtc is the preferred server for new installations)*
 * RTMP Streaming - via go2rtc: Stream live video from the camera to your favorite service, youtube, twitch, or facebook live.
 * Networking: 
   * Wireguard, IPv6, CIFS/Samba and iptables support enabled
@@ -52,7 +52,12 @@ Using this project can potentially expose your device to the open internet depen
 
 #### Visit the [Installation & Setup](https://github.com/gtxaspec/wz_mini_hacks/wiki/Setup-&-Installation) section of the [Wiki](https://github.com/gtxaspec/wz_mini_hacks/wiki) for details!
 
-## HELP! SOMETHING DOESN'T DOESN'T WORK
+> **Configuration file:** The template configuration file is located at
+> `SD_ROOT/wz_mini/etc/wz_mini.conf.dist`.  Copy it to
+> `SD_ROOT/wz_mini/wz_mini.conf` on your SD card and edit it to match your
+> setup before first boot.
+
+## HELP! SOMETHING DOESN'T WORK
 
 * If you need assistance, or have general questions, feel free to visit the [Discussions](https://github.com/gtxaspec/wz_mini_hacks/discussions) area!  There are folks always willing to help out.
 
@@ -82,6 +87,15 @@ DO NOT USE THIS SOFTWARE IF YOU ARE NOT CONFIDENT IN RESTORING YOUR DEVICE FROM 
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+### Note on committed credential files
+
+`SD_ROOT/wz_mini/etc/passwd` and `SD_ROOT/wz_mini/etc/shadow` are
+intentionally committed to this repository.  They contain the default
+credentials that are bind-mounted over the stock firmware's files at boot.
+The hashed password in `shadow` is replaced at runtime — this is **not** a
+credential leak.  Committing these files ensures a reproducible base
+installation and allows the build/checksum process to include them.
 
 ## Thank You
 

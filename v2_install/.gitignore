@@ -1,2 +1,11 @@
+# demo.bin is the compiled output of compile_image.sh (stock firmware + patched
+# kernel).  It is intentionally excluded from version control because it is a
+# large binary that is generated locally by the end-user.  generate_checksum.sh
+# also skips demo.bin when building file.chk.
 demo.bin
 demo*.zip
+
+# NOTE: v2_kernel.bin IS intentionally committed to this directory.  It is the
+# pre-built replacement kernel binary for the Wyze Cam v2 / Pan v1.  Committing
+# it means contributors do not need a cross-compilation toolchain just to run
+# compile_image.sh.

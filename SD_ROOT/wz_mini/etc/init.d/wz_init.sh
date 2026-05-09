@@ -10,10 +10,9 @@ LOG_NAME=/opt/wz_mini/log/wz_init
 if [[ -e $LOG_NAME.log || -L $LOG_NAME.log ]] ; then
     i=0
     while [[ -e $LOG_NAME.log.$i || -L $LOG_NAME.log.$i ]] ; do
-        let i++
+        i=$((i+1))
     done
-        mv $LOG_NAME.log $LOG_NAME.log.$i
-    LOG_NAME=$LOG_NAME
+    mv $LOG_NAME.log $LOG_NAME.log.$i
 fi
 touch -- "$LOG_NAME".log
 exec 1> $LOG_NAME.log 2>&1
