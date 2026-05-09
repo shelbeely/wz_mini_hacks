@@ -37,7 +37,7 @@ case "$1" in
 
 			echo "Firmware updates disabled"
 		else
-			echo "Firmwware updates enabled, monitor script running"
+			echo "Firmware updates enabled, monitor script running"
 			mkdir /tmp/Upgrade
 			/opt/wz_mini/bin/busybox inotifyd /opt/wz_mini/usr/bin/watch_up.sh /tmp:n > /dev/null 2>&1 &
 		fi

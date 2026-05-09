@@ -6,14 +6,15 @@ This is *ethernet over usb* -- not *usb over ethernet* and not *an ethernet adap
 
 ## On the Device
 
-set:
+In `wz_mini.conf`, set:
+
 ```
 ENABLE_USB_DIRECT="true"
 ```
 
-make sure that `ENABLE_USB_ETH="false"` and `ENABLE_USB_RNDIS="false"` as you can't use them all at once.
+make sure that `ENABLE_USB_ETH="false"` and `ENABLE_USB_RNDIS="false"` in `wz_mini.conf`, as you can't use them all at once.
 
-I also strongly recommend setting 
+I also strongly recommend setting in `wz_mini.conf`:
 
 ```
 USB_DIRECT_MAC_ADDR="02:FF:FF:FF:FF:01"

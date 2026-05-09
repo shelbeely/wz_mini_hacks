@@ -1,4 +1,20 @@
 #!/bin/bash
+# compile_image.sh — Build a patched Wyze Cam v2 / Pan v1 firmware image
+#
+# Downloads the latest official Wyze firmware (or uses a locally supplied
+# demo.zip), replaces the stock kernel with the wz_mini custom kernel
+# (v2_kernel.bin), and produces a drop-in demo.bin ready to flash via the
+# SD-card recovery method.
+#
+# Prerequisites (must be on PATH):
+#   wget, md5sum, mkimage (u-boot-tools), unzip
+#
+# Usage:
+#   ./compile_image.sh        — build for Wyze Cam v2
+#   ./compile_image.sh pan    — build for Wyze Cam Pan v1
+#
+# To use a locally downloaded firmware zip, place it as demo.zip in this
+# directory before running the script.
 
 UA_STRING="Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Safari/605.1.15"
 DL_URL=$(wget --header="Accept: text/html" --user-agent="$UA_STRING" -qO- https://support.wyze.com/hc/en-us/articles/360024852172-Release-Notes-Firmware | grep -Eo "(http|https)://[a-zA-Z0-9./?=_-]*" | grep /v2/ |   sort -t . -k2r,5 | grep demo | head -1)

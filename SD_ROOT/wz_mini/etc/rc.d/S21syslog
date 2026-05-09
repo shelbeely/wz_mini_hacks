@@ -17,15 +17,7 @@ syslog_save() {
 		echo "Store syslog logs"
 
 		SYSLOG_LOG=/opt/wz_mini/log/syslog
-		if [[ -e $SYSLOG_LOG.log || -L $SYSLOG_LOG.log ]] ; then
-			i=0
-			while [[ -e $SYSLOG_LOG.log.$i || -L $SYSLOG_LOG.log.$i ]] ; do
-				let i++
-			done
-			mv $SYSLOG_LOG.log $SYSLOG_LOG.log.$i
-			SYSLOG_LOG=$SYSLOG_LOG
-		fi
-		touch -- "$SYSLOG_LOG".log
+		rotate_log "$SYSLOG_LOG"
 		logread -F > $SYSLOG_LOG.log &
 	fi
 

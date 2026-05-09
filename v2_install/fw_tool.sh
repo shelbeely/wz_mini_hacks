@@ -1,6 +1,19 @@
 #!/bin/sh
-
-#custom for V2
+# fw_tool.sh — Unpack and repack a Wyze Cam v2 / Pan v1 firmware image
+#
+# This tool understands the flat binary layout of the Wyze v2 demo.bin
+# firmware file and can split it into its constituent partitions (kernel,
+# rootfs, driver, appfs) or recombine them into a new firmware image.
+#
+# Usage:
+#   ./fw_tool.sh unpack <demo.bin> <output_dir>
+#       Extract partitions from <demo.bin> into <output_dir>/.
+#
+#   ./fw_tool.sh pack <dir_with_parts> <output.bin>
+#       Pack the partition files in <dir_with_parts> into <output.bin>
+#       using mkimage (u-boot-tools must be installed).
+#
+# Typically called by compile_image.sh; not usually invoked directly.
 
 set -x
 

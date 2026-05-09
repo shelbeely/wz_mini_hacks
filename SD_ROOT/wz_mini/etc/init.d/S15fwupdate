@@ -74,7 +74,7 @@ case "$1" in
 		if [ -f /system/bin/liveMediaServer ]; then
 			echo "WARNING: Stock RTSP firmware detected."
 			echo "WARNING: The stock RTSP firmware is old, unmaintained, and insecure."
-			echo "WARNING: Compatability with wz_mini is NOT guaranteed, and not supported"
+			echo "WARNING: Compatibility with wz_mini is NOT guaranteed, and not supported"
 		fi
 
 		;;

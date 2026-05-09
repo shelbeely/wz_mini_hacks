@@ -1,7 +1,21 @@
 wz_mini notes for atomcam
 ---
 
-take a RAW snapshot (v2 only)
+## Table of Contents
+
+- [RAW Snapshot (v2)](#raw-snapshot-v2)
+- [RAW Snapshot (v3)](#raw-snapshot-v3)
+- [libcallback cmd utility](#libcallback-cmd-utility)
+- [GPIO](#gpio)
+- [Kernel Command Lines](#kernel-command-lines)
+- [v3 Accessory — Spotlight Serial Commands](#v3-accessory--spotlight-serial-commands)
+- [USB 2.0 DWC Controller](#usb-20-dwc-controller)
+- [libIMP Debug (impdbg)](#libimp-debug-impdbg)
+- [Audio Info](#audio-info)
+
+---
+
+### RAW Snapshot (v2)
 
 `impdbg --save_pic /tmp/output.nv12 --pic_type NV12`
 
@@ -10,7 +24,7 @@ convert to jpg:
 `ffmpeg -loglevel quiet -y -f rawvideo -pixel_format nv12 -s 1920x1080 -i /tmp/output.nv12 -vf fps=1 /media/mmc/output.jpg`
 
 ---
-take a RAW snapshot (v3 only)
+### RAW Snapshot (v3)
 
 `echo saveraw 1 > /proc/jz/isp/isp-w02`
 
@@ -21,6 +35,8 @@ download: https://github.com/jdthomas/bayer2rgb
 `bayer2rgb --input /tmp/snap0.raw --output=/media/mmc/record/snap0.tiff --width=1920 --height=1080 --bpp=16 --first=RGGB --method=BILINEAR --tiff`
 
 ---
+### libcallback cmd utility
+
 libcallback command utility `cmd` :
 
 ```
@@ -39,7 +55,7 @@ aplay <file path> <volume 1-100>
 mp4write on or off
 ```
 ---
-GPIO: 
+### GPIO
 
 v3:
 
@@ -120,7 +136,7 @@ Feb 20 02:19:27 iCamera: [SDK-GPIO]dbg: Pin(43)  Lvl(0)  Dir(in)
 
 ---
 
-kernel command line:
+### Kernel Command Lines
 
 v3:
 
@@ -136,7 +152,7 @@ v2:
 
 ---
 
-v3 accessory:
+### v3 Accessory — Spotlight Serial Commands
 
 Spotlight serial:
 
@@ -151,7 +167,7 @@ off:
 
 ---
 
-USB 2.0 DWC controller:
+### USB 2.0 DWC Controller
 
 v2:
 set host mode: 
@@ -180,7 +196,7 @@ set device mode:
 `devmem 0x10000040 32 0x0b000FFF`
 
 ---
-libIMP debug:
+### libIMP Debug (impdbg)
 
 `impdbg`
 ```
@@ -349,7 +365,7 @@ Framesource-2        update_cnt=0(qframecnt=0, dqframecnt=0, sem_msg_cnt=16, sem
 ```
 ---
 
-audio info:
+### Audio Info
 
 v3:
 

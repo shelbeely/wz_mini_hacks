@@ -1,0 +1,11 @@
+# Editor artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Build / release artifacts created by generate_checksum.sh
+# (file.chk is committed intentionally as the release checksum manifest)

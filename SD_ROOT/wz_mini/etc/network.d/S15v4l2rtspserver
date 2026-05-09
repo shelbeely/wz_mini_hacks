@@ -2,22 +2,19 @@
 
 ### BEGIN INIT INFO
 # Provides:
-# Short-Description: Start RTSP Server
-# Description:       Provide RTSP Streaming Video over IP
+# Short-Description: Start RTSP Server (legacy)
+# Description:       Provide RTSP Streaming Video over IP via v4l2rtspserver.
+#                    DEPRECATED: v4l2rtspserver is no longer actively maintained.
+#                    go2rtc (S17go2rtc) is the recommended RTSP server for new
+#                    installations.  This script is retained for legacy setups
+#                    that have not yet migrated.
 ### END INIT INFO
 
 . /opt/wz_mini/wz_mini.conf
+. /opt/wz_mini/etc/rc.common
 
 RTSP=/opt/wz_mini/log/v4l2rtspserver
-if [[ -e $RTSP.log || -L $RTSP.log ]] ; then
-	i=0
-	while [[ -e $RTSP.log.$i || -L $RTSP.log.$i ]] ; do
-		let i++
-	done
-	mv $RTSP.log $RTSP.log.$i
-	RTSP=$RTSP
-fi
-touch -- "$RTSP".log
+rotate_log "$RTSP"
 
 
 case "$1" in

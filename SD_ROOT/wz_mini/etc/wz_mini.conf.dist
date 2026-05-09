@@ -67,6 +67,9 @@ RTSP_HI_RES_ENABLE_AUDIO="false"
 RTSP_LOW_RES_ENABLED="false"
 RTSP_LOW_RES_ENABLE_AUDIO="false"
 
+# WARNING: Setting RTSP_AUTH_DISABLE="true" removes password protection from
+# the RTSP stream.  Anyone on the network will be able to view the stream
+# without credentials.  Only enable this in trusted, isolated networks.
 RTSP_AUTH_DISABLE="false"
 
 VIDEO_0_MAX_BITRATE=""
@@ -105,19 +108,17 @@ ENABLE_CIFS="false"
 DISABLE_FW_UPGRADE="true"
 AUDIO_PROMPT_VOLUME="50"
 ENABLE_MP4_WRITE="false"
+# Set to "true" to prevent the camera from dropping to night-vision mode
 NIGHT_DROP_DISABLE="false"
 ENABLE_FSCK_ON_BOOT="false"
 ENABLE_CAR_DRIVER="false"
+# Set to "true" to run dnsmasq as a local DNS/DHCP server on the camera
 ENABLE_LOCAL_DNS="false"
+# Set to "true" to enable cron job scheduling via crontab
 ENABLE_CRONTAB="false"
+# Set to "true" to operate without a Wyze cloud account (requires initial QR
+# code WiFi setup; patches iCamera to avoid cloud resets)
 ENABLE_SELFHOSTED_MODE="false"
-
-#####DEBUG#####
-#drops you to a shell via serial, doesn't load app_init.sh
-DEBUG_ENABLED="false"
-DEBUG_INITRAMFS_ENABLED="false"
-DEBUG_PASSWORD="false"
-ENABLE_SYSLOG_SAVE="false"
 
 ####WEB####
 WEB_SERVER_ENABLED="false"
@@ -129,4 +130,16 @@ WEB_SERVER_PASSWORD=""
 ENABLE_FILESERVER="false"
 
 #####SCRIPTING#####
+# Path to a custom shell script to run after the network is fully up.
+# Leave blank to disable.
 CUSTOM_SCRIPT_PATH=""
+
+#####DEBUG#####
+# DEBUG_ENABLED: drops you to a shell via serial; skips loading app_init.sh
+DEBUG_ENABLED="false"
+# DEBUG_INITRAMFS_ENABLED: drops you to a shell in the initramfs stage
+DEBUG_INITRAMFS_ENABLED="false"
+# DEBUG_PASSWORD: set to "true" to enable a known debug password for root
+DEBUG_PASSWORD="false"
+# ENABLE_SYSLOG_SAVE: save kernel syslog messages to the SD card on each boot
+ENABLE_SYSLOG_SAVE="false"
